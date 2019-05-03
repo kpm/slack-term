@@ -1,25 +1,12 @@
 FROM golang:alpine as builder
 
-ENV PATH /go/bin:/usr/local/go/bin:$PATH
-ENV GOPATH /go
-
-RUN	apk add --no-cache \
-	ca-certificates
-
-COPY . /go/src/github.com/erroneousboat/slack-term
-
-RUN set -x \
-	&& apk add --no-cache --virtual .build-deps \
-		git \
-		gcc \
-		libc-dev \
-		libgcc \
-		make \
-	&& cd /go/src/github.com/erroneousboat/slack-term \
-	&& make build \
-	&& mv ./bin/slack-term /usr/bin/slack-term \
-	&& apk del .build-deps \
-	&& rm -rf /go
+RUN set -x && \
+	cd src && mkdir github.com && cd * && mkdir erroneousboat && cd * && \
+	wget https://github.com/kpm/slack-term/archive/master.zip && \
+	unzip master.zip  -d . &&  mv slack-term-master slack-term && \
+	apk add --update --no-cache ca-certificates make && \
+	cd slack-term && make build && \
+	mv ./bin/slack-term /usr/bin/slack-term
 
 FROM alpine:latest
 
